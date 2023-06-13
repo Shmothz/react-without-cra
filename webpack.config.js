@@ -45,5 +45,6 @@ module.exports = {
    template: './index.html',
    favicon: './favicon.png',
   }),
+  new MiniCssExtractPlugin()
  ],
 }
