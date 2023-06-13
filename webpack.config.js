@@ -8,43 +8,44 @@ module.exports = {
  output: {
   path: path.join(__dirname, 'build'),
   filename: 'bundle.js',
+  publicPath: '/',
  },
- devServer: {
-  static: {
-   directory: path.join(__dirname, 'build')
-  }
+ devServer: {    static: {
+   directory: path.join(__dirname, './'),
+   watch: true,
+  },
+  historyApiFallback: true,
  },
  module: {
   rules: [
    {
     test: /(\.jsx?)$/,
     exclude: /node-modules/,
-    use: 'babel-loader'
+    use: 'babel-loader',
    },
    {
     test: /\.tsx?$/,
     exclude: /node-modules/,
-    use: 'ts-loader'
+    use: 'ts-loader',
    },
    {
-    test: /\.s[ac]ss$/,
+    test: /\.(css|scss|sass)$/,
     use: [
      MiniCssExtractPlugin.loader,
-     "style-loader",
-     "css-loader",
-     "sass-loader",
-    ]
-   }
+     'css-loader',
+     'sass-loader',
+    ],
+   },
   ],
  },
  resolve: {
-  extensions: ['.js','.jsx','.ts','.tsx'],
+  extensions: ['.js', '.jsx', '.ts', '.tsx'],
  },
  plugins: [
   new HTMLWebPackPlugin({
    template: './index.html',
    favicon: './favicon.png',
   }),
-  new MiniCssExtractPlugin()
+  new MiniCssExtractPlugin(),
  ],
 }

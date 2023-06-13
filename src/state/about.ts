@@ -11,7 +11,9 @@ interface IAddNewCommentFx {
 
 const addNewCommentFx = createEvent<IAddNewCommentFx>()
 
-export const $about = createStore<IAbout>(aboutStore).on(addNewCommentFx, (state, action) => {
+const $about = createStore<IAbout>(aboutStore).on(addNewCommentFx, (state, action) => {
  console.log(state, action)
  return {...state}
 })
+
+export default $about
