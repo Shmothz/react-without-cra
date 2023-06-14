@@ -1,8 +1,8 @@
-import {createEffect, createEvent, createStore} from 'effector'
+import {combine, createEffect, createEvent, createStore} from 'effector'
 
-const homeStore = {} as IHome
+const initialStore = {} as IPeople[]
 
-interface IPeople {
+export interface IPeople {
  birth_year: string
  eye_color: string
  films: string[]
@@ -20,22 +20,31 @@ interface IPeople {
  url: string,
  vehicles: string[]
 }
-
-interface IHome {
- photocards: IPeople
+interface IPeoplePayload {
+ count: number
+ next: string
+ previous: null
+ results: IPeople[]
 }
 
-export const getPhotocardsFx = createEffect(async () => {
- // const request = await ky.get('https://swapi.dev/api/people')
+const fetchData = async () => {
  const req = await fetch('https://swapi.dev/api/people')
  return req.json()
+}
+export const getPeopleFx = createEffect<void, IPeoplePayload, Error>(fetchData)
+const setPeople = createEvent<IPeople[]>()
+getPeopleFx.done.watch(({result}) => setPeople(result.results))
+const setCount = createEvent<number>()
+getPeopleFx.done.watch(({result}) => setCount(result.count))
+
+export const $people = createStore<IPeople[]>(initialStore)
+export const $count = createStore<number>(0)
+export const $home = combine({
+ isFetching: getPeopleFx.pending,
+ people: $people,
+ count: $count,
 })
-export const setPhotocardsFx = createEvent()
-const $home = createStore<IHome>(homeStore)
- .on(getPhotocardsFx.doneData,(state, payload) => payload)
- .on(setPhotocardsFx, (state,action) => {
-  console.log('click', state, action)
- })
-$home.watch(data => {
-})
-export default $home
+$people
+ .on(setPeople, (state, payload) => payload)
+$count
+ .on(setCount, (state, payload) => payload)

@@ -1,0 +1,20 @@
+.counter {
+ padding: 8px 14px;
+ font-size: 24px;
+ font-weight: 700;
+ color: white;
+ background-color: #919191;
+
+ -webkit-box-shadow: 0 0 20px 0 rgba(34, 60, 80, 0.5) inset;
+ -moz-box-shadow: 0 0 20px 0 rgba(34, 60, 80, 0.5) inset;
+ box-shadow: 0 0 20px 0 rgba(34, 60, 80, 0.5) inset;
+}
+.container {
+ height: calc(100vh - 104px - 2vw);
+ display: grid;
+ grid-template-columns: repeat(3, 32vw);
+ grid-gap: 1vw;
+ padding: 1vw;
+
+ background-image: url('../../assets/images/background.jpg');
+}

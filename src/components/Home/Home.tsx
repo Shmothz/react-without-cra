@@ -1,11 +1,18 @@
+import {$home, $people, getPeopleFx} from '../../state/home'
+import {useList, useStore} from 'effector-react'
 import {useEffect} from 'react'
-import {getPhotocardsFx} from '../../state/home'
+import {Card} from './Card'
+import s from './Home.module.scss'
 
-export const Home =() => {
-
+export const Home = () => {
+ const {isFetching, count} = useStore($home)
+ const people = useList($people, (item) => <Card item={item}/>)
  useEffect(() => {
-  getPhotocardsFx()
- },[])
-
- return <div>Home</div>
+  getPeopleFx()
+ }, [])
+ if (isFetching) return <div>Loading...</div>
+ return <div>
+  <div className={s.counter}>Всего персонажей: {count}</div>
+  <div className={s.container}>{people}</div>
+ </div>
 }
