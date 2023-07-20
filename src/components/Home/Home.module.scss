@@ -13,6 +13,7 @@
  height: calc(100vh - 104px - 2vw);
  display: grid;
  grid-template-columns: repeat(3, 32vw);
+ grid-auto-rows: 240px;
  grid-gap: 1vw;
  padding: 1vw;
 
