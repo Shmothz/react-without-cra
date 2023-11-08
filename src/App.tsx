@@ -3,8 +3,8 @@ import './normalize.css'
 import './index.css'
 
 export const App = () => {
-    return <>
-        <Header/>
-        <Root/>
-    </>
+ return <>
+  <Header/>
+  <Root/>
+ </>
 }
