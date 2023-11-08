@@ -1,7 +1,7 @@
 import {FavouritesService} from '../../utils/FavouritesService'
 import {NotFound} from '../common/NotFound'
 import {useStore} from 'effector-react'
-import {$home, $people, getPeopleFx} from '../../state/home'
+import {$home, $people} from '../../state/home'
 import {useEffect, useState} from 'react'
 import {Preloader} from '../common/Preloader'
 import s from './Favourites.module.scss'
@@ -11,7 +11,7 @@ export const Favourites = () => {
  const people = useStore($people)
  const {isFetching} = useStore($home)
  const [favCharacters, setFavCharacters] = useState<Array<string>>(FavouritesService.getFavourites() || [])
- const filtersChars = people.filter((char) => favCharacters?.includes(char.name))
+ // const filtersChars = people.filter((char) => favCharacters?.includes(char.name))
 
  // Контроль удаления избранных.
  useEffect(() => {

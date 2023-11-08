@@ -2,12 +2,7 @@ import {$home, $people, getPeopleFx} from '../../state/home'
 import {useStore} from 'effector-react'
 import {
     ChangeEvent,
-    createRef,
-    ElementRef,
-    ForwardedRef, MutableRefObject,
-    useCallback,
     useEffect,
-    useMemo,
     useRef,
     useState
 } from 'react'
@@ -15,7 +10,6 @@ import {Card} from './Card'
 import s from './Main.module.scss'
 import {Preloader} from '../common/Preloader'
 import {FavouritesService} from '../../utils/FavouritesService'
-import {entries} from "lodash";
 
 export const Main = () => {
     const [searchText, setSearchText] = useState<string>('')
