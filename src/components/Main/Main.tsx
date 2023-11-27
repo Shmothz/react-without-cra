@@ -1,5 +1,5 @@
-import {$home, $people, getPeopleFx} from '../../state/home'
-import {useStore} from 'effector-react'
+import {$count, $pending, $people, $search, fetchPeopleFx, searchChanged} from '../../state/home'
+import {useEvent, useList, useStore, useUnit} from 'effector-react'
 import {
  ChangeEvent,
  useEffect,
@@ -12,15 +12,22 @@ import {Preloader} from '../common/Preloader'
 import {FavouritesService} from '../../utils/FavouritesService'
 
 export const Main = () => {
- const [searchText, setSearchText] = useState<string>('')
+ const [count, search] = useUnit([$count, $search])
+ const pending = useStore(fetchPeopleFx.pending)
+ const searchEvent = useEvent(searchChanged)
  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
-  setSearchText(e.target.value)
+  searchEvent(e.target.value)
  }
- const {isFetching, count = 0} = useStore($home)
- const people = useStore($people)
+ const people = useList($people, (people) => <Card
+  item={people}
+  favCharacters={favCharacters}
+  changeFav={handleChange} />)
+
+ useEffect(() => {
+  fetchPeopleFx().finally()
+ },[])
 
  const [favCharacters, setFavCharacters] = useState<Array<string>>(FavouritesService.getFavourites() || [])
-
  // Если что-то меняется в массиве избранных - сразу оформляем в локальное хранилище.
  useEffect(() => {
   FavouritesService.setFavourites(favCharacters)
@@ -34,11 +41,6 @@ export const Main = () => {
    setFavCharacters((prevState) => prevState.filter((favName) => favName !== name))
   }
  }
-
- // Не уверен, что это должно выглядеть так. Опять же мало опыта с Effector.
- useEffect(() => {
-  getPeopleFx({name: searchText}).finally()
- }, [searchText])
 
  // Обработчик событий для бесконечного скролла и подгрузки данных. Не сделан из-за недостаточности навыков с Effector.
  const lastElementRef = useRef<HTMLDivElement>(null)
@@ -60,24 +62,13 @@ export const Main = () => {
   }
  }, [lastElementRef, options])
 
- if (isFetching) return <div><Preloader/></div>
+ if (pending) return <div><Preloader/></div>
 
  return <div className={s.container}>
-  <div className={s.toolbar}><span className={s.counter}>Всего персонажей: {count}</span><input value={searchText}
+  <div className={s.toolbar}><span className={s.counter}>Всего персонажей: {count}</span><input value={search}
    onChange={handleSearch}
    placeholder={'Начните поиск'}/>
   </div>
-  <div className={s.list}>{people.map((item, index, all) => {
-   if (all.length === index + 1) {
-    return <div key={item.name} ref={lastElementRef}><Card
-     item={item}
-     favCharacters={favCharacters}
-     changeFav={handleChange}/></div>
-   }
-   return <Card
-    key={item.name} item={item}
-    favCharacters={favCharacters}
-    changeFav={handleChange}/>
-  })}</div>
+  <div className={s.list}>{people}</div>
  </div>
 }

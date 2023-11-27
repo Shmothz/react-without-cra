@@ -1,7 +1,7 @@
 import {FavouritesService} from '../../utils/FavouritesService'
 import {NotFound} from '../common/NotFound'
 import {useStore} from 'effector-react'
-import {$home, $people} from '../../state/home'
+import {$pending, $people} from '../../state/home'
 import {useEffect, useState} from 'react'
 import {Preloader} from '../common/Preloader'
 import s from './Favourites.module.scss'
@@ -9,7 +9,7 @@ import s from './Favourites.module.scss'
 export const Favourites = () => {
 
  const people = useStore($people)
- const {isFetching} = useStore($home)
+ const pending = useStore($pending)
  const [favCharacters, setFavCharacters] = useState<Array<string>>(FavouritesService.getFavourites() || [])
  // const filtersChars = people.filter((char) => favCharacters?.includes(char.name))
 
@@ -27,7 +27,7 @@ export const Favourites = () => {
  //  getPeopleFx({name: ''}).finally()
  // }, [])
 
- if (isFetching) return <Preloader/>
+ if (pending) return <Preloader/>
 
  if (!favCharacters) return <NotFound message={'Ничего не добавлено в избранное'}/>
 

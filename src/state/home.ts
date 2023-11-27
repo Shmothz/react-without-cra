@@ -1,7 +1,9 @@
-import {combine, createEffect, createEvent, createStore} from 'effector'
+import {combine, createEffect, createEvent, createStore, sample} from 'effector'
 import testPeople from './test/people.json'
+import ky from "ky";
+import {debounce, not} from "patronum";
+import {result} from "lodash";
 
-const initialStore = [] as IPeople[]
 const PROD = true
 const BASE_URL = 'https://swapi.dev/api/'
 
@@ -26,34 +28,57 @@ export interface IPeople {
 
 interface IPeoplePayload {
     count: number
-    next: string
-    previous: null
+    next: string | null
+    previous: string | null
     results: IPeople[]
 }
 
-interface QueryParams {
-    name: string
-}
-
-
-export const getPeopleFx = createEffect<QueryParams, IPeoplePayload, Error>(async ({name}) => {
-    const req = await fetch(BASE_URL + `people/${name && `?search=${name}`}`)
+export const fetchPeopleFx = createEffect<void, IPeoplePayload, Error>(async () => {
+    const req = await ky.get(BASE_URL + 'people')
     if (!PROD) return testPeople
     return req.json()
 })
-const setPeople = createEvent<IPeople[]>()
-getPeopleFx.done.watch(({result}) => setPeople(result.results))
-const setCount = createEvent<number>()
-getPeopleFx.done.watch(({result}) => setCount(result.count))
 
-export const $people = createStore<IPeople[]>(initialStore)
-export const $count = createStore<number>(0)
-export const $home = combine({
-    isFetching: getPeopleFx.pending,
-    people: $people,
-    count: $count,
+export const searchFx = createEffect<string, IPeoplePayload, Error>(async (search) => {
+    const req = await ky.get(BASE_URL+'people', {
+        searchParams: {
+            search,
+        }
+    })
+    return req.json()
 })
+
+export const $people = createStore<IPeople[]>([])
+const peopleChanged = createEvent<IPeople[]>()
+
+fetchPeopleFx.done.watch(({result}) => {
+    peopleChanged(result.results)
+    countChanged(result.count)
+})
+
+export const $count = createStore<number>(0)
+const countChanged = createEvent<number>()
+
+export const $pending = createStore<boolean>(false)
+$pending.on([searchFx.pending], (_, pending) => pending)
+
+export const $search = createStore<string>('')
+export const searchChanged = createEvent<string>()
+const performSearch = debounce({source: searchChanged, timeout: 500})
+
 $people
-    .on(setPeople, (state, payload) => payload)
+    .on(peopleChanged, (state, payload) => payload)
+
+$people.on(searchFx.doneData, (_, {results}) => results)
+
 $count
-    .on(setCount, (state, payload) => payload)
+    .on(countChanged, (state, payload) => payload)
+
+$search.on(searchChanged, (_, search) => search)
+
+sample({
+    clock: performSearch, // 1. Если сработает функция clock.
+    source: $search, // 4. Передадим туда параметры.
+    filter: not(searchFx.pending), // 2. Проверим что текущей загрузки нет.
+    target: searchFx  // 3. Вызовем эту функцию.
+})
