@@ -1,8 +1,9 @@
 .container {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
+  overflow-x: hidden;
+  height: calc(100vh - 64px);
 
   & .fav {
     display: flex;

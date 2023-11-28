@@ -4,10 +4,10 @@ import {paths} from '../../constants'
 
 export const Header = () => {
 
- const {favourites, main} = paths
+ const {favourites, cards} = paths
 
  const options = [
-  {label: 'Main', path: main},
+  {label: 'Cards', path: cards},
   {label: 'Favourites', path: favourites},
  ]
  return <div className={s.container}>

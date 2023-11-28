@@ -31,3 +31,13 @@
   overflow-x: hidden;
   overflow-y: auto;
 }
+
+.smallLoader {
+  margin: 6px;
+  padding: 12px;
+  background-color: rgb(213, 213, 213);
+  border-radius: 6px;
+  border: 1px solid #CCC;
+  color: white;
+  width: 305px;
+}

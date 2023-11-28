@@ -1,42 +1,39 @@
 import {
- FC,
- useEffect,
+ FC, RefObject,
  useState
 } from 'react'
-import {IPeople} from '../../../state/home'
+import {$favsCharacters, favsChanged, IChar} from '../model'
 import s from './Card.module.scss'
 import cn from 'classnames'
 import {Modal} from '../../common/Modal'
-import {FullCard} from './FullCard'
+import {ModalCard} from './ModalCard'
+import {useEvent, useStore} from 'effector-react'
+import {Button} from "../../common/Button";
 
 interface IProps {
-    item: IPeople
-    favCharacters: Array<string>
-    changeFav: (name: string, isFav: boolean) => void
+    item: IChar
+ lastElementRef?: RefObject<HTMLDivElement>
 }
 
-export const Card: FC<IProps> = ({item, favCharacters, changeFav}) => {
+export const Card: FC<IProps> = ({item, lastElementRef}) => {
 
- const [isFav, setFav] = useState<boolean>(favCharacters.includes(item.name))
- useEffect(() => {
-  setFav(favCharacters.includes(item.name))
- }, [favCharacters])
+ const isFav = useStore($favsCharacters).includes(item.name)
+ const handleClick = useEvent(favsChanged)
 
  const [isVisible, setVisible] = useState<boolean>(false)
  const handleVisible = () => setVisible(!isVisible)
 
  return <>
-  <div className={s.container}>
+  <div className={s.container} ref={lastElementRef}>
    <div className={s.card}>
     <span className={s.name}>{item.name}</span>
     <span>Gender: {item.gender}</span>
     <span>Height: {item.height}, mass: {item.mass}</span>
     <span>Birth year: {item.birth_year}</span>
-    <button onClick={handleVisible} className={cn(s.btn, s.modalBtn)}>Карточка персонажа</button>
-    <button onClick={() => changeFav(item.name, isFav)}
-     className={cn(s.btn, !isFav ? s.y : s.n)}>{isFav ? 'Удалить из избранного' : 'Добавить в избранное'}</button>
+    <Button onClick={handleVisible} text={'Карточка персонажа'} color={'primary'} />
+    <Button onClick={() => handleClick(item.name)} text={isFav ? 'Удалить из избранного' : 'Добавить в избранное'}  color={!isFav ? "yes" : 'no'} />
    </div>
   </div>
-  <Modal Content={<FullCard item={item}/>} isVisible={isVisible} setVisible={setVisible}/>
+  <Modal Content={<ModalCard char={item}/>} isVisible={isVisible} setVisible={setVisible}/>
  </>
 }
